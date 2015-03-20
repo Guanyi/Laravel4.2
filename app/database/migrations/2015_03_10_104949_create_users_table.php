@@ -18,6 +18,7 @@ class CreateUsersTable extends Migration {
             $table->string('id', 50)->unique()->primary();
             $table->string('password', 60);
             $table->boolean('active')->default(0);
+            $table->integer('failedLoginNum')->default(0);
             $table->string('notes', 300)->nullable();
             $table->string('tbd', 300)->nullable();
             $table->string('hyperlink1', 100)->nullable();
