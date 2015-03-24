@@ -54,13 +54,6 @@ Route::filter('auth.basic', function()
 	return Auth::basic();
 });
 
-Route::filter('user', function()
-{
-    $state = Session::get('key');
-    if($state != 'loggedin')
-        return Redirect::to('login');
-});
-
 /*
 |--------------------------------------------------------------------------
 | Guest Filter
@@ -74,7 +67,7 @@ Route::filter('user', function()
 
 Route::filter('guest', function()
 {
-	if (Auth::check()) return Redirect::to('/');
+	if (Auth::check()) return Redirect::to('profile');
 });
 
 /*

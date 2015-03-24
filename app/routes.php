@@ -12,12 +12,12 @@
 */
 
 Route::get('/', 'LoginController@showLogin');
-Route::get('login', 'LoginController@showLogin');
+
+Route::get('login', array('before' => 'guest', 'uses' =>'LoginController@showLogin'));
 
 Route::post('login', 'LoginController@processLogin');
 
-Route::get('forgotpassword', function()
-{
+Route::get('forgotpassword', function() {
     return View::make('forgotpassword');
 });
 
@@ -25,8 +25,12 @@ Route::get('register', 'RegistrationController@showRegistration');
 
 Route::post('processingregistration', 'RegistrationController@processRegistration');
 
-Route::get('profile', array('before' => 'user', 'uses' => 'ProfileController@showProfile'));
+Route::get('profile', array('before' => 'auth', 'uses' => 'ProfileController@showProfile'));
 
 Route::post('profile', 'ProfileController@saveData');
 
-Route::get('{any}', 'LoginController@showLogin');
+
+
+Route::get('{any}', function() {
+    return Redirect::to('login');
+});

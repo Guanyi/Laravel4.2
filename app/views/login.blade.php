@@ -9,6 +9,11 @@
         <p>
             {{ $errors->first('id') }}
             {{ $errors->first('password') }}
+
+            <?php
+            if(isset($errorMessage))
+                echo $errorMessage;
+            ?>
         </p>
 
         <p>
