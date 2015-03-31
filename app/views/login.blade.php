@@ -18,7 +18,11 @@
 
         <p>
             {{ Form::label('id', 'Email Address') }}
+        @if (isset($userId))
+            {{ Form::text('id', $userId ) }}
+        @else
             {{ Form::text('id', Input::old('id'), array('placeholder' => 'awesome@awesome.com')) }}
+        @endif
         </p>
 
         <p>

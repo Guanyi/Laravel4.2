@@ -10,15 +10,9 @@ class LoginController extends BaseController {
 
 	public function processLogin()
 	{
-        $rules = array(
-            'id' => 'required|email', // make sure the email is an actual email
-            'password' => 'required' // password can only be alphanumeric and has to be greater than 3 characters
-        );
-
-        $validator = Validator::make(Input::all(), $rules);
-
-        if ($validator->fails())
-            return Redirect::to('/')->withErrors($validator)->withInput(Input::except('password'));
+        $user = new User;
+        if ( ! $user->isInputValid(Input::all()) )
+            return Redirect::to('/')->withInput(Input::except('password'))->withErrors($user->messages);
 
         else {
             $userdata = array(
@@ -27,15 +21,14 @@ class LoginController extends BaseController {
             );
             // attempt to do the login
             if (Auth::attempt($userdata)) {
-                $primaryKey = $userdata['id'];
-                $user = User::find($primaryKey);
+                $user = User::find(Input::get('id'));
 
-                if($user->active == false) {
+                if( ! $user->isActive() ) {
                     Auth::logout();
                     return View::make('login')->with('errorMessage', 'Your account has been disabled. Please reset password and check your email.');
                 }
                 Session::put('key', 'loggedin');
-                Session::put('id', $primaryKey);
+                //Session::put('id', Input::get('id'));
                 Session::put('user', $user);
                 $user->failedLoginNum = 0;
                 $user->save();
@@ -49,6 +42,15 @@ class LoginController extends BaseController {
                     $num = ++$user->failedLoginNum;
                     if($num == 3) {
                         $user->active = false;
+                        $newPassword = $this->generateRandomString();
+                        $data = [ 'password' => $newPassword, 'link' => 'http://localhost:8000/' . $user->id ];
+                        $user->password = Hash::make($newPassword);
+                        Mail::send('passwordreset', $data, function($message)
+                        {
+                            $userEmail = Input::get('id');
+                            $message->from('bcit3975@gmail.com', 'COMP3975 Assignment1');
+                            $message->to($userEmail, $userEmail)->subject('Here is your new password');
+                        });
                     }
                     $user->save();
                     return View::make('login')->with('errorMessage', 'You have failed log in in a row ' . $num . ' times.');
@@ -58,4 +60,31 @@ class LoginController extends BaseController {
             }
         }
 	}
+
+    public function sendPassword () {
+        $user = User::find(Input::get('id'));
+        if($user != null) {
+            $newPassword = $this->generateRandomString();
+            $data = [ 'password' => $newPassword, 'link' => 'http://localhost:8000/' . $user->id ];
+            $user->password = Hash::make($newPassword);
+            Mail::send('passwordreset', $data, function($message)
+            {
+                $userEmail = Input::get('id');
+                $message->from('bcit3975@gmail.com', 'COMP3975 Assignment1');
+                $message->to($userEmail, $userEmail)->subject('Here is your new password');
+            });
+        }
+        $user->save();
+        return View::make('passwordsendconfirmation');
+    }
+
+    function generateRandomString($length = 6) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
 }

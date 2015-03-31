@@ -4,10 +4,15 @@
         var row = document.getElementsByName(rowName);
         row.value = "";
     }
+
 </script>
 @section('content')
 
     <h1>{{$user->id}}</h1>
+    {{ Form::open(array('url' => 'logout')) }}
+    {{ Form::submit('Logout')}}
+    {{ Form::close() }}
+
     <hr>
 
     {{ Form::open(array('url' => 'profile')) }}

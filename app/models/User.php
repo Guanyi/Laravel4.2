@@ -42,4 +42,28 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         'image4'
     ];
 
+    public static $rules = [
+        'id' => 'required|email', // make sure the email is an actual email
+        'password' => 'required'  // password can only be alphanumeric and has to be greater than 3 characters;
+    ];
+
+    public $messages;
+
+    public function isActive() {
+        if($this->active == true)
+            return true;
+        else
+            return false;
+    }
+
+    public function isInputValid($inputs) {
+        $validator = Validator::make($inputs, static::$rules);
+
+        if ($validator->fails()) {
+            $this->messages = $validator->messages();
+            return false;
+        }
+
+        return true;
+    }
 }

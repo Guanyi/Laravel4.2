@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="jumbotron" align="center">
-        {{ Form::open(array('url' => 'emailpasswordremainder')) }}
+        {{ Form::open(array('url' => 'emailpasswordrequest')) }}
         <h1>Reset Your Password</h1>
         {{'Type your email address in the text box below. A new password will be sent to your email address.' }}
 

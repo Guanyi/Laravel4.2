@@ -17,9 +17,16 @@ Route::get('login', array('before' => 'guest', 'uses' =>'LoginController@showLog
 
 Route::post('login', 'LoginController@processLogin');
 
+Route::post('logout', function() {
+    Auth::logout();
+    return Redirect::to('login');
+});
+
 Route::get('forgotpassword', function() {
     return View::make('forgotpassword');
 });
+
+Route::post('emailpasswordrequest', 'LoginController@sendPassword');
 
 Route::get('register', 'RegistrationController@showRegistration');
 
@@ -29,8 +36,4 @@ Route::get('profile', array('before' => 'auth', 'uses' => 'ProfileController@sho
 
 Route::post('profile', 'ProfileController@saveData');
 
-
-
-Route::get('{any}', function() {
-    return Redirect::to('login');
-});
+Route::get('/{any}', 'RegistrationController@registrationActivation');
