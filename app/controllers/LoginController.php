@@ -3,7 +3,7 @@
 use Gregwar\Captcha\CaptchaBuilder;
 
 class LoginController extends BaseController {
-
+//add
 	public function showLogin($errorMessage = '')
 	{
         $builder = new CaptchaBuilder;
