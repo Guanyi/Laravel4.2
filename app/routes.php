@@ -13,14 +13,11 @@
 
 Route::get('/', 'LoginController@showLogin');
 
-Route::get('login', array('before' => 'guest', 'uses' =>'LoginController@showLogin'));
+Route::get('login', array('before' => 'guest', 'uses' => 'LoginController@showLogin'));
 
 Route::post('login', 'LoginController@processLogin');
 
-Route::post('logout', function() {
-    Auth::logout();
-    return Redirect::to('login');
-});
+Route::post('logout', 'LoginController@processLogout');
 
 Route::get('forgotpassword', function() {
     return View::make('forgotpassword');

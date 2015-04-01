@@ -7,7 +7,6 @@
 
 </script>
 @section('content')
-
     <h1>{{$user->id}}</h1>
     {{ Form::open(array('url' => 'logout')) }}
     {{ Form::submit('Logout')}}

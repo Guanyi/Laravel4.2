@@ -9,7 +9,6 @@
         <p>
             {{ $errors->first('id') }}
             {{ $errors->first('password') }}
-
             <?php
             if(isset($errorMessage))
                 echo $errorMessage;
@@ -31,6 +30,12 @@
             {{ Form::password('password') }}
         </p>
 
+        <p>
+            {{ Form::label('code', 'Code Below') }}
+            {{"&nbsp;&nbsp;&nbsp;"}}
+            {{ Form::text('code') }}<br>
+            <img src="<?php echo $builder->inline(); ?>" />
+        </p>
         <p>{{ Form::submit('Login')}}</p>
         <a href="{{ URL::to('register'); }}">Register</a>
         <a href="{{ URL::to('forgotpassword'); }}">Forgot Password</a>

@@ -1,18 +1,30 @@
 <?php
 
+use Gregwar\Captcha\CaptchaBuilder;
 
 class LoginController extends BaseController {
 
-	public function showLogin()
+	public function showLogin($errorMessage = '')
 	{
-        return View::make('login');
+        $builder = new CaptchaBuilder;
+        $builder->build();
+        Session::put('code', $builder->getPhrase());
+        return View::make('login')->with('errorMessage', $errorMessage)->with('builder', $builder);
 	}
+
+    public function processLogout() {
+        Auth::logout();
+        Session::flush();
+        return Redirect::to('login');
+    }
 
 	public function processLogin()
 	{
         $user = new User;
         if ( ! $user->isInputValid(Input::all()) )
             return Redirect::to('/')->withInput(Input::except('password'))->withErrors($user->messages);
+        if ( Session::get('code') != Input::get('code') )
+            return $this->showLogin('The CAPTCHA code you entered is wrong. Try again.');
 
         else {
             $userdata = array(
@@ -22,17 +34,16 @@ class LoginController extends BaseController {
             // attempt to do the login
             if (Auth::attempt($userdata)) {
                 $user = User::find(Input::get('id'));
-
                 if( ! $user->isActive() ) {
                     Auth::logout();
-                    return View::make('login')->with('errorMessage', 'Your account has been disabled. Please reset password and check your email.');
+                    Session::flush();
+                    return $this->showLogin('Your account has been disabled. Please reset password and check your email.');
                 }
                 Session::put('key', 'loggedin');
-                //Session::put('id', Input::get('id'));
                 Session::put('user', $user);
+                Session::put('expiretime', time() + 1200);
                 $user->failedLoginNum = 0;
                 $user->save();
-
                 return Redirect::to('profile');
             }
             else {
@@ -53,10 +64,10 @@ class LoginController extends BaseController {
                         });
                     }
                     $user->save();
-                    return View::make('login')->with('errorMessage', 'You have failed log in in a row ' . $num . ' times.');
+                    return $this->showLogin('You have failed log in in a row ' . $num . ' times.');
                 }
                 else
-                    return View::make('login')->with('errorMessage', 'No match record found.');
+                    return $this->showLogin('No match record found.');
             }
         }
 	}
