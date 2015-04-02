@@ -32,7 +32,7 @@ class ProfileController extends \BaseController {
                 Session::put('expiretime', time() + 1200);
 
                 $user = Session::get('user');
-                $user->notes = Input::get('notes');;
+                $user->notes = Input::get('notes');
                 $user->tbd = Input::get('tbd');
                 $user->hyperlink1 = Input::get('hyperlink1');
                 $user->hyperlink2 = Input::get('hyperlink2');
@@ -42,6 +42,43 @@ class ProfileController extends \BaseController {
                 $user->hyperlink6 = Input::get('hyperlink6');
                 $user->hyperlink7 = Input::get('hyperlink7');
                 $user->hyperlink8 = Input::get('hyperlink8');
+
+                $deleteImage1 = Input::get('deleteImage1');
+                if ($deleteImage1 == true)
+                    $user->image1 = null;
+                else {
+                    $imageFile1 = Input::file('image1');
+                    if ($imageFile1 != null)
+                        $user->image1 = base64_encode(file_get_contents($imageFile1->getRealPath()));
+                }
+
+                $deleteImage2 = Input::get('deleteImage2');
+                if ($deleteImage2 == true)
+                    $user->image2 = null;
+                else {
+                    $imageFile2 = Input::file('image2');
+                    if($imageFile2 != null)
+                        $user->image2 = base64_encode(file_get_contents($imageFile2->getRealPath()));
+                }
+
+                $deleteImage3 = Input::get('deleteImage3');
+                if ($deleteImage3 == true)
+                    $user->image3 = null;
+                else {
+                    $imageFile3 = Input::file('image3');
+                    if ($imageFile3 != null)
+                        $user->image3 = base64_encode(file_get_contents($imageFile3->getRealPath()));
+                }
+
+                $deleteImage4 = Input::get('deleteImage4');
+                if ($deleteImage4 == true)
+                    $user->image4 = null;
+                else {
+                    $imageFile4 = Input::file('image4');
+                    if ($imageFile4 != null)
+                        $user->image4 = base64_encode(file_get_contents($imageFile4->getRealPath()));
+                }
+
                 $user->save();
                 return Redirect::to('profile');
             }
