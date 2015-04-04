@@ -46,7 +46,7 @@ class ProfileController extends \BaseController {
                 $deleteImage1 = Input::get('deleteImage1');
                 if ($deleteImage1 == true)
                     $user->image1 = null;
-                else {
+                if (Validator::make(['image' => Input::file('image1')], ['image' => 'mimes:gif,jpg,jpeg'])->passes()) {
                     $imageFile1 = Input::file('image1');
                     if ($imageFile1 != null)
                         $user->image1 = base64_encode(file_get_contents($imageFile1->getRealPath()));
@@ -55,7 +55,7 @@ class ProfileController extends \BaseController {
                 $deleteImage2 = Input::get('deleteImage2');
                 if ($deleteImage2 == true)
                     $user->image2 = null;
-                else {
+                if (Validator::make(['image' => Input::file('image2')], ['image' => 'image|mimes:jpg,jpeg,gif'])->passes()) {
                     $imageFile2 = Input::file('image2');
                     if($imageFile2 != null)
                         $user->image2 = base64_encode(file_get_contents($imageFile2->getRealPath()));
@@ -64,7 +64,7 @@ class ProfileController extends \BaseController {
                 $deleteImage3 = Input::get('deleteImage3');
                 if ($deleteImage3 == true)
                     $user->image3 = null;
-                else {
+                if (Validator::make(['image' => Input::file('image3')], ['image' => 'image|mimes:jpg,jpeg,gif'])->passes()) {
                     $imageFile3 = Input::file('image3');
                     if ($imageFile3 != null)
                         $user->image3 = base64_encode(file_get_contents($imageFile3->getRealPath()));
@@ -73,7 +73,7 @@ class ProfileController extends \BaseController {
                 $deleteImage4 = Input::get('deleteImage4');
                 if ($deleteImage4 == true)
                     $user->image4 = null;
-                else {
+                if (Validator::make(['image' => Input::file('image4')], ['image' => 'image|mimes:jpg,jpeg,gif'])->passes()) {
                     $imageFile4 = Input::file('image4');
                     if ($imageFile4 != null)
                         $user->image4 = base64_encode(file_get_contents($imageFile4->getRealPath()));
@@ -85,5 +85,15 @@ class ProfileController extends \BaseController {
         }
         else
             return View::make('register');
+    }
+
+    function inValidImage() {
+        $validator = Validator::make(Input::get('image1'), ['image1' => 'mimes:jpeg,gif']);
+
+        if ($validator->fails()) {
+            return false;
+        }
+
+        return true;
     }
 }

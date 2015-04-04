@@ -79,6 +79,7 @@
     </table>
 
     <h1>Images</h1>
+    <p>.jpg and .gif images only. Other types of images will not be uploaded.</p>
 
     <p>
         {{ "Image 1" . Form::file('image1') . "Check and save to delete  " . Form::checkbox('deleteImage1', 'v1', false) . "<br><br>" }}
