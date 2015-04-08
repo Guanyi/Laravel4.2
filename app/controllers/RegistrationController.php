@@ -60,7 +60,7 @@ class RegistrationController extends \BaseController {
         if($user != null && $user->confirmationtoken == $token) {
             $user->active = 1;
             $user->save();
-            return View::make('login');
+            return Redirect::to('login');
         }
     }
 }
