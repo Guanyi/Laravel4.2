@@ -31,7 +31,16 @@
     <table border='0' class='col-lg-12'>
         <tr class="">
             <td width='40px' style = 'text-align:center'>1</td>
+            @if($user->hyperlink1 != null)
+                <?php echo "<td><a href='$user->hyperlink1'>"; ?>
+
+            {{Form::text('hyperlink1', $user->hyperlink1, ['maxlength' => '100', 'style' => 'display:table-cell; width:100%'])}}
+
+            <?php echo '</a></td>'; ?>
+
+            @else
             <td>{{ Form::text('hyperlink1', $user->hyperlink1, ['maxlength' => '100', 'style' => 'display:table-cell; width:100%']) }}</td>
+            @endif
             <td width='90px' style = 'text-align:left' onclick='clearRow("hyperlink1")'><button>Clear</button></td>
         </tr>
 

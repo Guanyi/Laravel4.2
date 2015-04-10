@@ -1,15 +1,13 @@
 <?php
 
-use Gregwar\Captcha\CaptchaBuilder;
-
 class LoginController extends BaseController {
 
 	public function showLogin($errorMessage = '')
 	{
-        $builder = new CaptchaBuilder;
-        $builder->build();
-        Session::put('code', $builder->getPhrase());
-        return View::make('login')->with('errorMessage', $errorMessage)->with('builder', $builder);
+        if(isset($_COOKIE['name']))
+            return View::make('login')->with('errorMessage', $errorMessage)->with('cookie', $_COOKIE['name']);
+        else
+            return View::make('login')->with('errorMessage', $errorMessage);
 	}
 
     public function processLogout() {
@@ -23,9 +21,6 @@ class LoginController extends BaseController {
         $user = new User;
         if ( ! $user->isInputValid(Input::all()) )
             return Redirect::to('/')->withInput(Input::except('password'))->withErrors($user->messages);
-        if ( Session::get('code') != Input::get('code') )
-            return $this->showLogin('The CAPTCHA code you entered is wrong. Try again.');
-
         else {
             $userdata = array(
                 'id' => Input::get('id'),
@@ -43,18 +38,26 @@ class LoginController extends BaseController {
                 Session::put('user', $user);
                 Session::put('expiretime', time() + 1200);
                 $user->failedLoginNum = 0;
+                $user->active = true;
                 $user->save();
+                setcookie('name', Input::get('id'), time() + (86400 * 30), "/");
                 return Redirect::to('profile');
             }
             else {
                 $user = User::find(Input::get('id'));
                 //only password is wrong
                 if($user != null) {
+                    if( ! $user->isActive() ) {
+                        Auth::logout();
+                        Session::flush();
+                        return $this->showLogin('Your account has been disabled. Please reset password and check your email.');
+                    }
                     $num = ++$user->failedLoginNum;
                     if($num == 3) {
                         $user->active = false;
                         $newPassword = $this->generateRandomString();
-                        $data = [ 'password' => $newPassword, 'link' => 'http://localhost:8000/' . $user->id ];
+                        $user->confirmationtoken = str_random(20);
+                        $data = [ 'password' => $newPassword, 'link' => 'http://localhost:8000/' . $user->id . '+' . $user->confirmationtoken];
                         $user->password = Hash::make($newPassword);
                         Mail::send('passwordreset', $data, function($message)
                         {
@@ -84,9 +87,12 @@ class LoginController extends BaseController {
                 $message->from('bcit3975@gmail.com', 'COMP3975 Assignment1');
                 $message->to($userEmail, $userEmail)->subject('Here is your new password');
             });
+            $user->save();
+            return View::make('passwordsendconfirmation')->with('confirm', true);
         }
-        $user->save();
-        return View::make('passwordsendconfirmation');
+        else {
+            return View::make('passwordsendconfirmation')->with('confirm', false);
+        }
     }
 
     function generateRandomString($length = 6) {

@@ -19,6 +19,8 @@
             {{ Form::label('id', 'Email Address') }}
         @if (isset($userId))
             {{ Form::text('id', $userId ) }}
+        @elseif (isset($cookie))
+            {{ Form::text('id', $cookie, array('placeholder' => 'awesome@awesome.com')) }}
         @else
             {{ Form::text('id', Input::old('id'), array('placeholder' => 'awesome@awesome.com')) }}
         @endif
@@ -30,12 +32,6 @@
             {{ Form::password('password') }}
         </p>
 
-        <p>
-            {{ Form::label('code', 'Code Below') }}
-            {{"&nbsp;&nbsp;&nbsp;"}}
-            {{ Form::text('code') }}<br>
-            <img src="<?php echo $builder->inline(); ?>" />
-        </p>
         <p>{{ Form::submit('Login')}}</p>
         <a href="{{ URL::to('register'); }}">Register</a>
         <a href="{{ URL::to('forgotpassword'); }}">Forgot Password</a>

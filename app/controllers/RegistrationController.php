@@ -1,14 +1,22 @@
 <?php
 
+use Gregwar\Captcha\CaptchaBuilder;
+
 class RegistrationController extends \BaseController {
 
-    public function showRegistration()
+    public function showRegistration($errorMessage = '')
     {
-        return View::make('register');
+        $builder = new CaptchaBuilder;
+        $builder->build();
+        Session::put('code', $builder->getPhrase());
+        return View::make('register')->with('builder', $builder)->with('errorMessage', $errorMessage);
     }
 
     public function processRegistration()
     {
+        if ( Session::get('code') != Input::get('code') )
+            return $this->showRegistration('The CAPTCHA code you entered is wrong. Try again.');
+
         $rules = array(
             'id' => 'required|email|unique:users',
             'password' => 'required|confirmed',
@@ -20,6 +28,8 @@ class RegistrationController extends \BaseController {
         if ($validator->fails())
             return Redirect::to('register')->withErrors($validator)->withInput(Input::except('password'));
         else {
+            if(User::find(Input::get('id')) != null )
+                return $this->showRegistration('This email has been used. Please choose another one.');
             $user = new User;
             $user->id = Input::get('id');
             $user->password = Hash::make(Input::get('password'));
@@ -32,7 +42,7 @@ class RegistrationController extends \BaseController {
             {
                 $userEmail = Input::get('id');
                 $message->from('bcit3975@gmail.com', 'COMP3975 Assignment1');
-                $message->to($userEmail, $userEmail)->subject('PLease complete your registration');
+                $message->to($userEmail, $userEmail)->subject('Please complete your registration');
             });
 
             return Redirect::to('/')->with('message', 'Thanks for registering!');
@@ -47,15 +57,15 @@ class RegistrationController extends \BaseController {
             return View::make('login')->with('userId', $any);;
         }
 
-        //account first activation situation
+        //account activation situation
         $id = substr($any, 0, $delimPos);
         $token = substr($any, $delimPos+1);
         $user = User::find($id);
         if ($user == null) {
-            return View::make('register');
+            return $this->showRegistration('');
         }
         if ($user->confirmationtoken != $token) {
-            return View::make('register');
+            return $this->showRegistration('');
         }
         if($user != null && $user->confirmationtoken == $token) {
             $user->active = 1;
